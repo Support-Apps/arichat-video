@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>עורך וידאו מגזיני — חיתוך, השתקה, טשטוש וציר זמן</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --white: #ffffff;
+      --cream: #fbf8f5;
+      --pink-soft: #fae9ef;
+      --pink-strong: #ecc4d2;
+      --pink-border: #e0b2c3;
+      --ink: #141414;
+      --ink-soft: #4d4d4d;
+      --gold: #b89448;
+      --gold-soft: #f4ecdc;
+      --line: #141414;
+      --line-light: #e4ddd6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border-radius: 0 !important;
+    }
+
+    body {
+      font-family: 'Assistant', sans-serif;
+      background-color: var(--white);
+      color: var(--ink);
+      line-height: 1.6;
+      padding: 20px 28px 50px;
+    }
+
+    .container {
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    .bs-d-bar {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    header.editorial-header {
+      border-top: 2px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 0 20px;
+      margin-bottom: 24px;
+      background: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--cream);
+      border: 1px solid var(--line-light);
+      padding: 2px 9px;
+      margin-bottom: 8px;
+    }
+
+    header.editorial-header h1 {
+      font-family: 'Playfair Display', 'Assistant', serif;
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    header.editorial-header p {
+      font-size: 0.98rem;
+      color: var(--ink-soft);
+    }
+
+    .shortcuts-box {
+      background: var(--cream);
+      border: 1px solid var(--line-light);
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      color: var(--ink);
+    }
+
+    .shortcuts-box kbd {
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 1px 6px;
+      font-family: 'Assistant', sans-serif;
+      font-weight: 700;
+      margin: 0 2px;
+    }
+
+    /* סרגל שלבים מגזיני */
+    .steps-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--line);
+      background: var(--cream);
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 800px) {
+      .steps-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .step-cell {
+      padding: 10px 14px;
+      border-left: 1px solid var(--line-light);
+      font-size: 0.86rem;
+    }
+
+    .step-cell:last-child {
+      border-left: none;
+    }
+
+    .step-num {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--gold);
+      margin-left: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1.05fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    @media (max-width: 940px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 9px;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h2 {
+      font-family: 'Playfair Display', 'Assistant', serif;
+      font-size: 1.22rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .panel-tag {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--pink-soft);
+      border: 1px solid var(--pink-border);
+      padding: 2px 8px;
+    }
+
+    .upload-zone {
+      border: 1px dashed var(--line);
+      background: var(--cream);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      margin-bottom: 16px;
+    }
+
+    .upload-zone:hover {
+      background: var(--pink-soft);
+      border-color: var(--gold);
+    }
+
+    .upload-zone strong {
+      display: block;
+      font-size: 1.02rem;
+      color: var(--ink);
+    }
+
+    .upload-zone small {
+      color: var(--ink-soft);
+      font-size: 0.84rem;
+    }
+
+    .stage-box {
+      position: relative;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage-placeholder {
+      font-size: 0.94rem;
+      color: var(--ink-soft);
+      text-align: center;
+      padding: 20px;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: var(--cream);
+      display: none;
+    }
+
+    .overlay-frame {
+      position: absolute;
+      top: 16%;
+      left: 20%;
+      width: 24%;
+      height: 28%;
+      cursor: move;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .pip-frame {
+      border: 2px dashed var(--gold);
+      background: rgba(251, 248, 245, 0.82);
+      color: var(--ink);
+    }
+
+    .blur-frame {
+      border: 2px solid var(--ink);
+      background: rgba(250, 233, 239, 0.6);
+      backdrop-filter: blur(8px);
+      color: var(--ink);
+    }
+
+    .resize-grip {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      right: 0;
+      bottom: 0;
+      background: var(--gold);
+      border: 1px solid var(--ink);
+      cursor: se-resize;
+    }
+
+    /* ציר זמן ויזואלי מרובע */
+    .timeline-section {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      background: var(--cream);
+      padding: 10px 12px;
+    }
+
+    .timeline-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .timeline-bar {
+      position: relative;
+      height: 28px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .tl-block {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      opacity: 0.9;
+      border-right: 1px solid var(--ink);
+      border-left: 1px solid var(--ink);
+    }
+
+    .tl-cut {
+      background: var(--pink-strong);
+    }
+
+    .tl-soft {
+      background: var(--gold-soft);
+    }
+
+    .tl-playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--ink);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .timeline-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      margin-top: 6px;
+    }
+
+    .legend-swatch {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border: 1px solid var(--ink);
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    button {
+      font-family: 'Assistant', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      background: var(--white);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--cream);
+      border-color: var(--gold);
+    }
+
+    button.btn-editorial {
+      background: var(--pink-soft);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    button.btn-editorial:hover:not(:disabled) {
+      background: var(--pink-strong);
+    }
+
+    button.btn-accent {
+      background: var(--cream);
+      color: var(--ink);
+      border: 1px solid var(--gold);
+    }
+
+    button.btn-accent:hover:not(:disabled) {
+      background: var(--pink-soft);
+    }
+
+    button.btn-sm {
+      padding: 4px 9px;
+      font-size: 0.8rem;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .field {
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line-light);
+    }
+
+    .field:last-of-type {
+      border-bottom: none;
+    }
+
+    .field-title {
+      display: block;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+
+    .field small {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+      margin-top: 3px;
+    }
+
+    input[type="range"],
+    select {
+      width: 100%;
+      accent-color: var(--gold);
+      padding: 6px 8px;
+      background: var(--white);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      font-family: 'Assistant', sans-serif;
+      font-size: 0.88rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .checkbox-label input {
+      accent-color: var(--gold);
+      width: 15px;
+      height: 15px;
+    }
+
+    .bulk-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .segments-box {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      background: var(--cream);
+    }
+
+    .seg-row {
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--line-light);
+      background: var(--white);
+      font-size: 0.86rem;
+    }
+
+    .seg-row:last-child {
+      border-bottom: none;
+    }
+
+    .seg-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .seg-time-link {
+      font-weight: 700;
+      color: var(--ink);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .seg-badge {
+      background: var(--pink-soft);
+      border: 1px solid var(--pink-border);
+      color: var(--ink);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 1px 6px;
+    }
+
+    .seg-controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .seg-controls select {
+      width: auto;
+      padding: 3px 7px;
+      font-size: 0.8rem;
+    }
+
+    .status-strip {
+      margin-top: 14px;
+      padding: 10px 13px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      font-size: 0.88rem;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      margin-top: 8px;
+      display: none;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--gold);
+      transition: width 0.15s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="bs-d-bar">בס״ד</div>
+
+  <header class="editorial-header">
+    <div>
+      <span class="kicker">Editorial Video Studio</span>
+      <h1>עורך וידאו חכם — חיתוך, השתקה, טשטוש וציר זמן</h1>
+      <p>ממשק מואר ומינימליסטי לעריכת סרטונים ארוכים עם החרגת סרטון פנימי, סנכרון שעון מלא וייצוא איכותי.</p>
+    </div>
+    <div class="shortcuts-box">
+      <strong>קיצורי מקלדת מהירים:</strong><br>
+      <kbd>רווח</kbd> נגן / השהה &nbsp;|&nbsp; <kbd>M</kbd> סמן התחלה / סיום &nbsp;|&nbsp; <kbd>→</kbd> <kbd>←</kbd> דילוג 2 שנ׳
+    </div>
+  </header>
+
+  <div class="steps-strip">
+    <div class="step-cell"><span class="step-num">01</span> טעני קובץ וידאו</div>
+    <div class="step-cell"><span class="step-num">02</span> סרקי דיבור או סמני ידנית</div>
+    <div class="step-cell"><span class="step-num">03</span> בחרי חיתוך / השתקה / טשטוש</div>
+    <div class="step-cell"><span class="step-num">04</span> צרי קובץ ושתפי ישירות</div>
+  </div>
+
+  <div class="grid">
+    <!-- תצוגה מקדימה וציר זמן -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>01 / תצוגת וידאו וציר זמן</h2>
+        <span class="panel-tag">סנכרון שעון נעול</span>
+      </div>
+
+      <div class="upload-zone" id="dropZone">
+        <strong>לחצי לבחירת סרטון או גררי לכאן</strong>
+        <small>הקובץ מעובד מקומית בדפדפן בלבד — העבודה נשמרת אוטומטית להמשך</small>
+        <input type="file" id="videoInput" accept="video/*" hidden>
+      </div>
+
+      <div class="stage-box" id="stageBox">
+        <div class="stage-placeholder" id="stagePlaceholder">הסרטון יוצג כאן עם אפשרות להזיז ולהגדיל את מסגרת הטשטוש ומסגרת הסרטון הפנימי.</div>
+        <video id="sourceVideo" controls playsinline></video>
+
+        <div class="overlay-frame pip-frame" id="pipBox" title="גררי מעל סרטון בתוך סרטון להחרגה">
+          <span>סרטון פנימי (מוחרג)</span>
+          <div class="resize-grip" data-target="pipBox"></div>
+        </div>
+
+        <div class="overlay-frame blur-frame" id="blurBox" title="גררי מעל הפנים לטשטוש">
+          <span>טשטוש פנים</span>
+          <div class="resize-grip" data-target="blurBox"></div>
+        </div>
+      </div>
+
+      <!-- ציר זמן ויזואלי מרובע -->
+      <div class="timeline-section">
+        <div class="timeline-meta">
+          <span>ציר זמן עריכה (לחצי לקפיצה מהירה)</span>
+          <span id="timeDisplay">00:00 / 00:00</span>
+        </div>
+        <div class="timeline-bar" id="timelineBar">
+          <div class="tl-playhead" id="tlPlayhead" style="right: 0%;"></div>
+        </div>
+        <div class="timeline-legend">
+          <span><span class="legend-swatch" style="background:var(--pink-strong);"></span>חיתוך / הסרה</span>
+          <span><span class="legend-swatch" style="background:var(--gold-soft);"></span>השתקה / טשטוש פנים</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button id="scanAudioBtn" class="btn-editorial" disabled>זיהוי אוטומטי של קול גבר</button>
+        <button id="markCutBtn" disabled>סימון ידני (התחלה / סיום)</button>
+        <button id="previewCleanBtn" class="btn-accent" disabled>תצוגה מקדימה מדלגת</button>
+        <button id="togglePipBtn" disabled>מסגרת סרטון פנימי</button>
+        <button id="toggleBlurBtn" disabled>מסגרת טשטוש פנים</button>
+      </div>
+
+      <div class="status-strip" id="statusText">ממתין לטעינת סרטון.</div>
+      <div class="progress-track" id="progressWrap">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+    </section>
+
+    <!-- הגדרות, פעולות גורפות וייצוא -->
+    <aside class="panel">
+      <div class="panel-header">
+        <h2>02 / שליטה בקטעים וייצוא</h2>
+        <span class="panel-tag">עיבוד חכם</span>
+      </div>
+
+      <div class="field">
+        <label class="field-title" for="defaultAction">פעולה ברירת מחדל לקטעים חדשים</label>
+        <select id="defaultAction">
+          <option value="cut_and_mute">חיתוך והשתקה (הסרה מלאה)</option>
+          <option value="cut">חיתוך בלבד</option>
+          <option value="mute">השתקה בלבד (השארת תמונה)</option>
+          <option value="blur_and_mute">טשטוש פנים והשתקה</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-title" for="freqThreshold">רגישות תדר קול גברי: <span id="freqVal">155</span> Hz</label>
+        <input type="range" id="freqThreshold" min="95" max="185" value="155">
+      </div>
+
+      <div class="field">
+        <label class="field-title" for="blurStrength">עוצמת טשטוש פנים: <span id="blurStrengthVal">18</span> px</label>
+        <input type="range" id="blurStrength" min="8" max="36" value="18">
+      </div>
+
+      <div class="field">
+        <label class="checkbox-label">
+          <input type="checkbox" id="ignorePipAudio" checked>
+          <span>החרג אוטומטית דיבור מתוך סרטון בתוך סרטון</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="field-title" for="qualityMode">איכות ייצוא לשיתוף</label>
+        <select id="qualityMode">
+          <option value="smart_share">מאוזן לשיתוף מהיר (VBR 4.5 Mbps — חד וקטן)</option>
+          <option value="high_hd">איכות גבוהה מלאה (VBR 8 Mbps — מקסימום פרטים)</option>
+          <option value="compact">נפח מוקטן לשיתוף קל (VBR 2.5 Mbps)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <span class="field-title">קיצורי דרך לכל הקטעים ברשימה:</span>
+        <div class="bulk-bar">
+          <button type="button" class="btn-sm" id="shortToBlurBtn" disabled>קטעים קצרים (&lt;2 שנ׳) ← טשטוש והשתקה</button>
+          <button type="button" class="btn-sm" id="shortToMuteBtn" disabled>קטעים קצרים (&lt;2 שנ׳) ← השתקה בלבד</button>
+          <button type="button" class="btn-sm" id="clearAllBtn" disabled>נקה רשימה</button>
+        </div>
+
+        <div class="segments-box" id="segmentsList">
+          <div style="padding:14px; text-align:center; color:var(--ink-soft);">אין קטעים מסומנים כרגע.</div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="flex-direction: column;">
+        <button id="renderBtn" class="btn-editorial" disabled>יצירת סרטון ערוך (סנכרון מלא)</button>
+        <div style="display:flex; gap:8px;">
+          <button id="downloadBtn" style="flex:1;" disabled>הורדת סרטון</button>
+          <button id="shareBtn" class="btn-accent" style="flex:1;" disabled>שיתוף ישיר</button>
+        </div>
+        <button id="exportLogBtn" class="btn-sm" disabled>הורד דוח זמני עריכה (TXT)</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const videoInput = document.getElementById('videoInput');
+  const dropZone = document.getElementById('dropZone');
+  const stageBox = document.getElementById('stageBox');
+  const stagePlaceholder = document.getElementById('stagePlaceholder');
+  const video = document.getElementById('sourceVideo');
+  const pipBox = document.getElementById('pipBox');
+  const blurBox = document.getElementById('blurBox');
+  const timelineBar = document.getElementById('timelineBar');
+  const tlPlayhead = document.getElementById('tlPlayhead');
+  const timeDisplay = document.getElementById('timeDisplay');
+
+  const togglePipBtn = document.getElementById('togglePipBtn');
+  const toggleBlurBtn = document.getElementById('toggleBlurBtn');
+  const scanAudioBtn = document.getElementById('scanAudioBtn');
+  const markCutBtn = document.getElementById('markCutBtn');
+  const previewCleanBtn = document.getElementById('previewCleanBtn');
+  const shortToBlurBtn = document.getElementById('shortToBlurBtn');
+  const shortToMuteBtn = document.getElementById('shortToMuteBtn');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+  const exportLogBtn = document.getElementById('exportLogBtn');
+
+  const defaultActionSelect = document.getElementById('defaultAction');
+  const freqThreshold = document.getElementById('freqThreshold');
+  const freqVal = document.getElementById('freqVal');
+  const blurStrength = document.getElementById('blurStrength');
+  const blurStrengthVal = document.getElementById('blurStrengthVal');
+  const segmentsList = document.getElementById('segmentsList');
+  const renderBtn = document.getElementById('renderBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const shareBtn = document.getElementById('shareBtn');
+  const statusText = document.getElementById('statusText');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
+
+  let videoFile = null;
+  let segments = [];
+  let manualStart = null;
+  let processedBlob = null;
+  let processedFileName = 'edited-video.mp4';
+  let previewCleanActive = false;
+
+  freqThreshold.addEventListener('input', () => freqVal.textContent = freqThreshold.value);
+  blurStrength.addEventListener('input', () => blurStrengthVal.textContent = blurStrength.value);
+
+  // העלאת קובץ
+  dropZone.addEventListener('click', () => videoInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.background = 'var(--pink-soft)'; });
+  dropZone.addEventListener('dragleave', () => { dropZone.style.background = 'var(--cream)'; });
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.style.background = 'var(--cream)';
+    if (e.dataTransfer.files[0]) loadVideo(e.dataTransfer.files[0]);
+  });
+  videoInput.addEventListener('change', e => {
+    if (e.target.files[0]) loadVideo(e.target.files[0]);
+  });
+
+  function getStorageKey(file) {
+    return `naira_vid_edit_${file.name}_${file.size}`;
+  }
+
+  function saveProjectState() {
+    if (!videoFile) return;
+    localStorage.setItem(getStorageKey(videoFile), JSON.stringify(segments));
+  }
+
+  function loadVideo(file) {
+    videoFile = file;
+    video.src = URL.createObjectURL(file);
+    video.style.display = 'block';
+    stagePlaceholder.style.display = 'none';
+    processedBlob = null;
+
+    // שחזור עבודה שמורה אם קיימת לאותו סרטון
+    const saved = localStorage.getItem(getStorageKey(file));
+    segments = saved ? JSON.parse(saved) : [];
+
+    [togglePipBtn, toggleBlurBtn, scanAudioBtn, markCutBtn, previewCleanBtn,
+     shortToBlurBtn, shortToMuteBtn, clearAllBtn, renderBtn, exportLogBtn].forEach(b => b.disabled = false);
+    downloadBtn.disabled = true;
+    shareBtn.disabled = true;
+
+    video.onloadedmetadata = () => {
+      renderSegments();
+      updateTimelineUI();
+      statusText.textContent = saved && segments.length > 0
+        ? `נטען ${file.name} ושוחזרו ${segments.length} קטעים מהשמירה האוטומטית.`
+        : `נטען הקובץ: ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`;
+    };
+  }
+
+  // עדכון ציר זמן ותצוגה מקדימה חיה
+  video.addEventListener('timeupdate', () => {
+    if (!video.duration) return;
+    const pct = (video.currentTime / video.duration) * 100;
+    tlPlayhead.style.right = `${pct}%`;
+    timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+
+    if (previewCleanActive) {
+      const activeSeg = segments.find(s => video.currentTime >= s.start && video.currentTime <= s.end);
+      if (activeSeg) {
+        if (activeSeg.action === 'cut' || activeSeg.action === 'cut_and_mute') {
+          video.currentTime = activeSeg.end + 0.03;
+        } else if (activeSeg.action === 'mute' || activeSeg.action === 'blur_and_mute') {
+          video.muted = true;
+        }
+      } else {
+        video.muted = false;
+      }
+    }
+  });
+
+  // לחיצה על ציר הזמן לקפיצה לנקודה מדויקת
+  timelineBar.addEventListener('click', e => {
+    if (!video.duration) return;
+    const rect = timelineBar.getBoundingClientRect();
+    // כיוון RTL: ימין הוא התחלה (0%), שמאל הוא סוף (100%)
+    const clickFromRight = rect.right - e.clientX;
+    const ratio = Math.max(0, Math.min(1, clickFromRight / rect.width));
+    video.currentTime = ratio * video.duration;
+  });
+
+  previewCleanBtn.addEventListener('click', () => {
+    previewCleanActive = !previewCleanActive;
+    previewCleanBtn.classList.toggle('btn-editorial', previewCleanActive);
+    previewCleanBtn.textContent = previewCleanActive ? 'תצוגה מדלגת: פעיל' : 'תצוגה מקדימה מדלגת';
+    if (!previewCleanActive) video.muted = false;
+  });
+
+  // קיצורי מקלדת
+  window.addEventListener('keydown', e => {
+    if (!videoFile || ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      video.paused ? video.play() : video.pause();
+    } else if (e.key.toLowerCase() === 'm') {
+      e.preventDefault();
+      markCutBtn.click();
+    } else if (e.code === 'ArrowLeft') {
+      e.preventDefault();
+      video.currentTime = Math.min(video.duration || 0, video.currentTime + 2);
+    } else if (e.code === 'ArrowRight') {
+      e.preventDefault();
+      video.currentTime = Math.max(0, video.currentTime - 2);
+    }
+  });
+
+  togglePipBtn.addEventListener('click', () => {
+    pipBox.style.display = pipBox.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  toggleBlurBtn.addEventListener('click', () => {
+    blurBox.style.display = blurBox.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  // גרירה ושינוי גודל למסגרות
+  let activeDrag = null;
+  let startX, startY, startLeft, startTop, startW, startH;
+
+  document.querySelectorAll('.overlay-frame').forEach(box => {
+    box.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('resize-grip')) return;
+      activeDrag = { type: 'move', el: box };
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = box.offsetLeft;
+      startTop = box.offsetTop;
+      e.stopPropagation();
+    });
+  });
+
+  document.querySelectorAll('.resize-grip').forEach(handle => {
+    handle.addEventListener('mousedown', e => {
+      const box = document.getElementById(handle.dataset.target);
+      activeDrag = { type: 'resize', el: box };
+      startX = e.clientX;
+      startY = e.clientY;
+      startW = box.offsetWidth;
+      startH = box.offsetHeight;
+      e.stopPropagation();
+    });
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!activeDrag) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const maxW = stageBox.clientWidth;
+    const maxH = stageBox.clientHeight;
+
+    if (activeDrag.type === 'move') {
+      activeDrag.el.style.left = Math.max(0, Math.min(maxW - activeDrag.el.offsetWidth, startLeft + dx)) + 'px';
+      activeDrag.el.style.top = Math.max(0, Math.min(maxH - activeDrag.el.offsetHeight, startTop + dy)) + 'px';
+    } else if (activeDrag.type === 'resize') {
+      activeDrag.el.style.width = Math.max(44, Math.min(maxW - activeDrag.el.offsetLeft, startW + dx)) + 'px';
+      activeDrag.el.style.height = Math.max(44, Math.min(maxH - activeDrag.el.offsetTop, startH + dy)) + 'px';
+    }
+  });
+
+  window.addEventListener('mouseup', () => activeDrag = null);
+
+  // סימון ידני
+  markCutBtn.addEventListener('click', () => {
+    if (manualStart === null) {
+      manualStart = video.currentTime;
+      markCutBtn.textContent = `קבע סיום (החל מ-${formatTime(manualStart)})`;
+      markCutBtn.classList.add('btn-editorial');
+    } else {
+      const end = video.currentTime;
+      if (end > manualStart) {
+        const chosenAction = defaultActionSelect.value;
+        if (chosenAction === 'blur_and_mute') blurBox.style.display = 'flex';
+        segments.push({ start: manualStart, end, reason: 'סימון ידני', action: chosenAction });
+        sortSegments();
+        renderSegments();
+        saveProjectState();
+      }
+      manualStart = null;
+      markCutBtn.textContent = 'סימון ידני (התחלה / סיום)';
+      markCutBtn.classList.remove('btn-editorial');
+    }
+  });
+
+  // פעולות גורפות לקטעים קצרים
+  shortToBlurBtn.addEventListener('click', () => {
+    segments.forEach(s => { if ((s.end - s.start) <= 2.0) s.action = 'blur_and_mute'; });
+    blurBox.style.display = 'flex';
+    renderSegments();
+    saveProjectState();
+    statusText.textContent = 'כל הקטעים הקצרים (עד 2 שניות) הועברו לטשטוש פנים והשתקה.';
+  });
+
+  shortToMuteBtn.addEventListener('click', () => {
+    segments.forEach(s => { if ((s.end - s.start) <= 2.0) s.action = 'mute'; });
+    renderSegments();
+    saveProjectState();
+    statusText.textContent = 'כל הקטעים הקצרים (עד 2 שניות) הועברו להשתקה בלבד.';
+  });
+
+  clearAllBtn.addEventListener('click', () => {
+    segments = [];
+    renderSegments();
+    saveProjectState();
+    statusText.textContent = 'הרשימה נוקתה.';
+  });
+
+  // סריקה אוטומטית של שמע
+  scanAudioBtn.addEventListener('click', async () => {
+    if (!videoFile) return;
+    scanAudioBtn.disabled = true;
+    statusText.textContent = 'מנתח רצועת שמע לזיהוי דיבור של גבר...';
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '20%';
+
+    try {
+      const arrayBuffer = await videoFile.arrayBuffer();
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+      progressBar.style.width = '55%';
+      const channelData = audioBuffer.getChannelData(0);
+      const sampleRate = audioBuffer.sampleRate;
+      const stepSec = 0.25;
+      const samplesPerStep = Math.floor(sampleRate * stepSec);
+      const maxMaleHz = parseInt(freqThreshold.value, 10);
+      const ignorePip = document.getElementById('ignorePipAudio').checked;
+      const chosenAction = defaultActionSelect.value;
+
+      let detected = [];
+      let currentStart = null;
+
+      for (let i = 0; i < channelData.length; i += samplesPerStep) {
+        const slice = channelData.subarray(i, i + samplesPerStep);
+        const rms = calculateRMS(slice);
+        const currentTime = i / sampleRate;
+
+        if (rms > 0.015) {
+          const pitch = estimatePitchAutocorrelation(slice, sampleRate);
+          const isInternalVideoAudio = ignorePip && detectCompressedPiPAudio(slice);
+
+          if (pitch > 75 && pitch <= maxMaleHz && !isInternalVideoAudio) {
+            if (currentStart === null) currentStart = Math.max(0, currentTime - 0.15);
+          } else if (currentStart !== null) {
+            detected.push({ start: currentStart, end: currentTime + 0.15, reason: `קול גברי (~${Math.round(pitch)}Hz)`, action: chosenAction });
+            currentStart = null;
+          }
+        } else if (currentStart !== null) {
+          detected.push({ start: currentStart, end: currentTime + 0.1, reason: 'קול גברי זוהה', action: chosenAction });
+          currentStart = null;
+        }
+      }
+
+      if (currentStart !== null) {
+        detected.push({ start: currentStart, end: audioBuffer.duration, reason: 'קול גברי זוהה', action: chosenAction });
+      }
+
+      if (chosenAction === 'blur_and_mute' && detected.length > 0) blurBox.style.display = 'flex';
+
+      segments = [...segments, ...detected];
+      sortSegments();
+      renderSegments();
+      saveProjectState();
+
+      progressBar.style.width = '100%';
+      statusText.textContent = `הסריקה הסתיימה: ${segments.length} קטעים מוכנים לעריכה.`;
+      setTimeout(() => { progressWrap.style.display = 'none'; }, 900);
+    } catch (err) {
+      statusText.textContent = 'אירעה שגיאה בפענוח השמע.';
+      console.error(err);
+    } finally {
+      scanAudioBtn.disabled = false;
+    }
+  });
+
+  function calculateRMS(buf) {
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    return Math.sqrt(sum / buf.length);
+  }
+
+  function estimatePitchAutocorrelation(buf, sampleRate) {
+    const size = Math.min(buf.length, 2048);
+    let bestOffset = -1;
+    let bestCorrelation = 0;
+    const minOffset = Math.floor(sampleRate / 300);
+    const maxOffset = Math.floor(sampleRate / 70);
+
+    for (let offset = minOffset; offset <= maxOffset; offset++) {
+      let correlation = 0;
+      for (let i = 0; i < size - offset; i++) correlation += buf[i] * buf[i + offset];
+      if (correlation > bestCorrelation) {
+        bestCorrelation = correlation;
+        bestOffset = offset;
+      }
+    }
+    return bestOffset > 0 ? sampleRate / bestOffset : 0;
+  }
+
+  function detectCompressedPiPAudio(buf) {
+    let zcr = 0;
+    for (let i = 1; i < buf.length; i++) {
+      if ((buf[i] >= 0 && buf[i - 1] < 0) || (buf[i] < 0 && buf[i - 1] >= 0)) zcr++;
+    }
+    return (zcr / buf.length) < 0.025;
+  }
+
+  function sortSegments() {
+    segments.sort((a, b) => a.start - b.start);
+  }
+
+  function updateTimelineUI() {
+    timelineBar.querySelectorAll('.tl-block').forEach(el => el.remove());
+    if (!video.duration) return;
+
+    segments.forEach(seg => {
+      const rightPct = (seg.start / video.duration) * 100;
+      const widthPct = Math.max(0.6, ((seg.end - seg.start) / video.duration) * 100);
+      const block = document.createElement('div');
+      block.className = 'tl-block ' + ((seg.action === 'cut' || seg.action === 'cut_and_mute') ? 'tl-cut' : 'tl-soft');
+      block.style.right = `${rightPct}%`;
+      block.style.width = `${widthPct}%`;
+      block.title = `${formatTime(seg.start)} - ${formatTime(seg.end)}`;
+      timelineBar.appendChild(block);
+    });
+  }
+
+  function renderSegments() {
+    updateTimelineUI();
+    if (segments.length === 0) {
+      segmentsList.innerHTML = '<div style="padding:14px; text-align:center; color:var(--ink-soft);">אין קטעים מסומנים כרגע.</div>';
+      return;
+    }
+    segmentsList.innerHTML = segments.map((seg, idx) => `
+      <div class="seg-row">
+        <div class="seg-top">
+          <span class="seg-time-link" onclick="jumpToTime(${seg.start})" title="לחצי לקפיצה לקטע">${formatTime(seg.start)} - ${formatTime(seg.end)} (${(seg.end - seg.start).toFixed(1)} שנ׳)</span>
+          <span class="seg-badge">${seg.reason}</span>
+        </div>
+        <div class="seg-controls">
+          <select onchange="updateSegmentAction(${idx}, this.value)">
+            <option value="cut_and_mute" ${seg.action === 'cut_and_mute' ? 'selected' : ''}>חיתוך והשתקה</option>
+            <option value="cut" ${seg.action === 'cut' ? 'selected' : ''}>חיתוך בלבד</option>
+            <option value="mute" ${seg.action === 'mute' ? 'selected' : ''}>השתקה בלבד</option>
+            <option value="blur_and_mute" ${seg.action === 'blur_and_mute' ? 'selected' : ''}>טשטוש פנים והשתקה</option>
+          </select>
+          <button type="button" class="btn-sm" onclick="removeSegment(${idx})">בטל</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.jumpToTime = (sec) => {
+    video.currentTime = Math.max(0, sec - 0.5);
+    video.play();
+  };
+
+  window.updateSegmentAction = (idx, val) => {
+    segments[idx].action = val;
+    if (val === 'blur_and_mute') blurBox.style.display = 'flex';
+    updateTimelineUI();
+    saveProjectState();
+  };
+
+  window.removeSegment = (idx) => {
+    segments.splice(idx, 1);
+    renderSegments();
+    saveProjectState();
+  };
+
+  function getBlurCoordsInCanvas(canvasW, canvasH) {
+    const rect = stageBox.getBoundingClientRect();
+    const bRect = blurBox.getBoundingClientRect();
+    const scaleX = canvasW / rect.width;
+    const scaleY = canvasH / rect.height;
+    return {
+      x: (bRect.left - rect.left) * scaleX,
+      y: (bRect.top - rect.top) * scaleY,
+      w: bRect.width * scaleX,
+      h: bRect.height * scaleY
+    };
+  }
+
+  // רינדור הסרטון הסופי
+  renderBtn.addEventListener('click', async () => {
+    if (!videoFile) return;
+    renderBtn.disabled = true;
+    previewCleanActive = false;
+    statusText.textContent = 'מעבד ומקודד סרטון ערוך בסנכרון מלא...';
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '5%';
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+
+    const audioCtx = new AudioContext();
+    const sourceNode = audioCtx.createMediaElementSource(video);
+    const gainNode = audioCtx.createGain();
+    const destNode = audioCtx.createMediaStreamDestination();
+
+    sourceNode.connect(gainNode);
+    gainNode.connect(destNode);
+
+    const canvasStream = canvas.captureStream(30);
+    const combinedStream = new MediaStream([
+      ...canvasStream.getVideoTracks(),
+      ...destNode.stream.getAudioTracks()
+    ]);
+
+    const quality = document.getElementById('qualityMode').value;
+    const bitrateMap = { smart_share: 4500000, high_hd: 8000000, compact: 2500000 };
+
+    const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')
+      ? 'video/mp4;codecs=avc1'
+      : 'video/webm;codecs=vp9,opus';
+
+    processedFileName = mimeType.includes('mp4') ? 'edited-video.mp4' : 'edited-video.webm';
+
+    const recorder = new MediaRecorder(combinedStream, {
+      mimeType,
+      videoBitsPerSecond: bitrateMap[quality]
+    });
+
+    const chunks = [];
+    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+    recorder.onstop = () => {
+      processedBlob = new Blob(chunks, { type: mimeType });
+      downloadBtn.disabled = false;
+      shareBtn.disabled = false;
+      renderBtn.disabled = false;
+      progressBar.style.width = '100%';
+      statusText.textContent = `הסרטון הערוך מוכן (${(processedBlob.size / (1024 * 1024)).toFixed(1)} MB) — סנכרון תקין.`;
+    };
+
+    const blurPx = parseInt(blurStrength.value, 10);
+    const blurCoords = getBlurCoordsInCanvas(canvas.width, canvas.height);
+
+    video.currentTime = 0;
+    video.muted = false;
+    recorder.start(250);
+    await video.play();
+
+    function processFrame() {
+      if (video.ended) {
+        recorder.stop();
+        audioCtx.close();
+        return;
+      }
+
+      const t = video.currentTime;
+      progressBar.style.width = `${Math.min(98, (t / video.duration) * 100)}%`;
+
+      const activeSeg = segments.find(s => t >= s.start && t <= s.end);
+
+      if (activeSeg && (activeSeg.action === 'cut' || activeSeg.action === 'cut_and_mute')) {
+        gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.01);
+        video.currentTime = activeSeg.end + 0.02;
+      } else {
+        const shouldMute = activeSeg && (activeSeg.action === 'mute' || activeSeg.action === 'blur_and_mute');
+        gainNode.gain.setTargetAtTime(shouldMute ? 0 : 1, audioCtx.currentTime, 0.01);
+
+        ctx.save();
+        ctx.filter = 'none';
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        if (activeSeg && activeSeg.action === 'blur_and_mute') {
+          ctx.beginPath();
+          ctx.rect(blurCoords.x, blurCoords.y, blurCoords.w, blurCoords.h);
+          ctx.clip();
+          ctx.filter = `blur(${blurPx}px)`;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
+        ctx.restore();
+      }
+
+      requestAnimationFrame(processFrame);
+    }
+
+    processFrame();
+  });
+
+  // הורדת דוח זמנים
+  exportLogBtn.addEventListener('click', () => {
+    const labels = {
+      cut_and_mute: 'חיתוך והשתקה',
+      cut: 'חיתוך בלבד',
+      mute: 'השתקה בלבד',
+      blur_and_mute: 'טשטוש פנים והשתקה'
+    };
+    const lines = [
+      'בס״ד',
+      `דוח עריכת וידאו: ${videoFile ? videoFile.name : ''}`,
+      '----------------------------------------',
+      ...segments.map((s, i) => `${i + 1}. ${formatTime(s.start)} - ${formatTime(s.end)} | ${labels[s.action]} | (${s.reason})`)
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'edit-report.txt';
+    a.click();
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!processedBlob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(processedBlob);
+    a.download = processedFileName;
+    a.click();
+  });
+
+  shareBtn.addEventListener('click', async () => {
+    if (!processedBlob) return;
+    const file = new File([processedBlob], processedFileName, { type: processedBlob.type });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'סרטון ערוך',
+          text: 'הסרטון לאחר עריכה וסינון'
+        });
+      } catch (err) {
+        statusText.textContent = 'השיתוף בוטל או לא נתמך.';
+      }
+    } else {
+      alert('בדפדפן זה מומלץ ללחוץ על "הורדת סרטון" ולשתף ישירות מהמחשב.');
+    }
+  });
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+</script>
+
+</body>
+</html>
